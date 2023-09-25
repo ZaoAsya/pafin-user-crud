@@ -3,11 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { UsersModule } from './routes/users/users.module';
+import { AuthModule } from './routes/auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     UsersModule,
+    AuthModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

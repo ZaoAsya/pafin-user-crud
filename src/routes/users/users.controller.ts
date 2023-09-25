@@ -7,32 +7,39 @@ import {
   Delete,
   Body,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
-import { User } from './entities/user.entity';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/createUser.dto';
-// import { AuthGuard } from '../../guards/auth.guard';
-import { UserIdDto } from './dto/userIdDto';
-import { UpdateUserDto } from './dto/updateUser.dto';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+
+import { UsersService } from './users.service';
+import { AuthGuard } from '../../guards/auth.guard';
 import { UserNotFoundInterceptor } from '../../interceptors/userNotFound.interceptor';
+
+import { CreateUserDto } from './dto/createUser.dto';
+import { UserIdDto } from './dto/userIdDto';
+import { UpdateUserDto } from './dto/updateUser.dto';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 @ApiTags('users')
-// @UseGuards(AuthGuard) // or move to method level
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all users data' })
   @ApiOkResponse({ description: 'Got users data' })
+  @ApiUnauthorizedResponse({ description: 'Request from unauthorized user' })
   async findAll() {
     return await this.userService.findAll();
   }
@@ -42,6 +49,7 @@ export class UsersController {
   @UseInterceptors(UserNotFoundInterceptor)
   @ApiOkResponse({ description: 'Got user data' })
   @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Request from unauthorized user' })
   async findOne(@Param() params: UserIdDto) {
     return await this.userService.findOne(params.id);
   }
@@ -50,6 +58,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Create new user' })
   @ApiCreatedResponse({ description: 'New user was created successfully' })
   @ApiBadRequestResponse({ description: 'Invalid input params' })
+  @ApiUnauthorizedResponse({ description: 'Request from unauthorized user' })
   async createUser(@Body() user: CreateUserDto): Promise<User> {
     return await this.userService.createUser(user);
   }
@@ -60,6 +69,7 @@ export class UsersController {
   @ApiOkResponse({ description: 'User was updated successfully' })
   @ApiBadRequestResponse({ description: 'Invalid input params' })
   @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Request from unauthorized user' })
   async updateUser(
     @Param() params: UserIdDto,
     @Body() user: UpdateUserDto,
@@ -72,6 +82,7 @@ export class UsersController {
   @UseInterceptors(UserNotFoundInterceptor)
   @ApiOkResponse({ description: 'User was removed successfully' })
   @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Request from unauthorized user' })
   async deleteUser(@Param() params: UserIdDto): Promise<User> {
     return await this.userService.deleteUser(params.id);
   }
