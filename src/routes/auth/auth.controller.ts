@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TokenType } from './types/tokenType';
 import { GetTokenDto } from './dto/getToken.dto';
 
@@ -11,6 +11,7 @@ export class AuthController {
 
   @Post('token')
   @ApiOperation({ summary: 'Get jwt auth token' })
+  @ApiOkResponse({ type: TokenType })
   async getToken(@Body() body: GetTokenDto): Promise<TokenType> {
     return this.authService.getToken(body.username);
   }
