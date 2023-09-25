@@ -8,6 +8,7 @@ import {
   Body,
   UseInterceptors,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -26,7 +27,6 @@ import { AuthGuard } from '../../guards/auth.guard';
 import { UserNotFoundInterceptor } from '../../interceptors/userNotFound.interceptor';
 
 import { CreateUserDto } from './dto/createUser.dto';
-import { UserIdDto } from './dto/userIdDto';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { User } from './entities/user.entity';
 
@@ -51,8 +51,8 @@ export class UsersController {
   @ApiOkResponse({ description: 'Got user data' })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'Request from unauthorized user' })
-  async findOne(@Param() params: UserIdDto) {
-    return await this.userService.findOne(params.id);
+  async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.userService.findOne(id);
   }
 
   @Post()
@@ -72,10 +72,10 @@ export class UsersController {
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'Request from unauthorized user' })
   async updateUser(
-    @Param() params: UserIdDto,
+    @Param('id', new ParseUUIDPipe()) id: string,
     @Body() user: UpdateUserDto,
   ): Promise<User> {
-    return await this.userService.updateUser(params.id, user);
+    return await this.userService.updateUser(id, user);
   }
 
   @Delete(':id')
@@ -84,7 +84,9 @@ export class UsersController {
   @ApiOkResponse({ description: 'User was removed successfully' })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'Request from unauthorized user' })
-  async deleteUser(@Param() params: UserIdDto): Promise<DeleteResult> {
-    return await this.userService.deleteUser(params.id);
+  async deleteUser(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<DeleteResult> {
+    return await this.userService.deleteUser(id);
   }
 }
