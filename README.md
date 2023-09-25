@@ -1,12 +1,24 @@
 ## Pafin User CRUD
 
 RESTful API that allows users to create, retrieve, update, and delete data on a PostgreSQL database.
-User routes are protected with jwt.
+User routes are secured using JWT authentication.
 
-### Technologies
+### Codebase
 
+#### Technologies used
 - NestJs
 - PostgreSQL database
+
+#### DB table schema
+```
+CREATE TABLE "public"."user" (
+    "name" varchar NOT NULL,
+    "email" varchar NOT NULL,
+    "password" varchar NOT NULL,
+    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    PRIMARY KEY ("id")
+);
+```
 
 ### Installation
 
@@ -16,8 +28,7 @@ $ npm install
 
 ### Running the app
 
-Add .env file
-
+Add .env file with values
 ```
 PG_HOST=
 PG_PORT=
@@ -52,7 +63,7 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
-Swagger to test routes is available on http://localhost:3000/api.
+Swagger is available on http://localhost:3000/api.
 
 Firstly, you need to [get access token](http://localhost:3000/api#/auth/AuthController_getToken). Then copy the result 
 and authorize with it on top of the page (green button).
