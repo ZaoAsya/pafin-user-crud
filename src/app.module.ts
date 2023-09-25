@@ -1,27 +1,34 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import * as process from 'process';
+
+import { UsersModule } from './routes/users/users.module';
+
+import {
+  DB_TYPE,
+  PG_DB,
+  PG_HOST,
+  PG_PASSWORD,
+  PG_PORT,
+  PG_USERNAME,
+} from './config';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     UsersModule,
     TypeOrmModule.forRoot({
-      type: process.env.DB_TYPE as any,
-      host: process.env.PG_HOST,
-      port: +process.env.PG_PORT,
-      username: process.env.PG_USERNAME,
-      password: process.env.PG_PASSWORD,
-      database: process.env.PG_DB,
+      type: DB_TYPE as any,
+      host: PG_HOST,
+      port: PG_PORT,
+      username: PG_USERNAME,
+      password: PG_PASSWORD,
+      database: PG_DB,
       entities: [__dirname + '/**/*.entity.{ts,js}'],
       synchronize: true,
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
