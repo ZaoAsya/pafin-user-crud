@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/createUser.dto';
@@ -8,6 +9,8 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 
 @Injectable()
 export class UsersService {
+  bcryptSaltLength = 10;
+
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -22,18 +25,27 @@ export class UsersService {
   }
 
   async createUser(user: CreateUserDto): Promise<User> {
-    const newUser = this.userRepository.create(user);
+    const hashedUser = await this.hashUserSecrets(user);
+    const newUser = this.userRepository.create(hashedUser);
     return await this.userRepository.save(newUser);
   }
 
   async updateUser(id: string, user: UpdateUserDto): Promise<User> {
-    await this.userRepository.update(id, user);
+    const hashedUser = await this.hashUserSecrets(user);
+    await this.userRepository.update(id, hashedUser);
     return await this.userRepository.findOne({ where: { id } });
   }
 
-  async deleteUser(id: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
-    await this.userRepository.delete(id);
-    return user;
+  async deleteUser(id: string): Promise<DeleteResult> {
+    return await this.userRepository.delete(id);
+  }
+
+  private async hashUserSecrets(user: UpdateUserDto): Promise<UpdateUserDto> {
+    return user.password
+      ? {
+          ...user,
+          password: await bcrypt.hash(user.password, this.bcryptSaltLength),
+        }
+      : user;
   }
 }

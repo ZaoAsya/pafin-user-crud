@@ -19,6 +19,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { DeleteResult } from 'typeorm';
 
 import { UsersService } from './users.service';
 import { AuthGuard } from '../../guards/auth.guard';
@@ -83,7 +84,7 @@ export class UsersController {
   @ApiOkResponse({ description: 'User was removed successfully' })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'Request from unauthorized user' })
-  async deleteUser(@Param() params: UserIdDto): Promise<User> {
+  async deleteUser(@Param() params: UserIdDto): Promise<DeleteResult> {
     return await this.userService.deleteUser(params.id);
   }
 }
