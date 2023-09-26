@@ -28,16 +28,13 @@ $ npm install
 
 ### Running the app
 
-Add .env file with values
+Add .env file like `.env.template`
+
+Run the database:
+```bash
+$ npm run db:start
 ```
-PG_HOST=
-PG_PORT=
-PG_USERNAME=
-PG_PASSWORD=
-PG_DB=
-JWT_TOKEN_SECRET=
-```
-что-то про запуск докера и бд
+Run the app (available on port 3000):
 ```bash
 # development
 $ npm run start
@@ -49,8 +46,6 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-The app is available on port 3000.
-
 ### Test
 
 ```bash
@@ -59,9 +54,6 @@ $ npm run test
 
 # e2e tests
 $ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 Swagger is available on http://localhost:3000/api.
 

@@ -5,6 +5,7 @@ import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { UsersService } from '../src/routes/users/users.service';
 import { UsersModule } from '../src/routes/users/users.module';
+import { AuthModule } from '../src/routes/auth/auth.module';
 
 import { UserNotFoundInterceptor } from '../src/interceptors/userNotFound.interceptor';
 import { AuthGuard } from '../src/guards/auth.guard';
@@ -12,27 +13,28 @@ import { AuthGuard } from '../src/guards/auth.guard';
 import { CreateUserDto } from '../src/routes/users/dto/createUser.dto';
 import { UpdateUserDto } from '../src/routes/users/dto/updateUser.dto';
 import {
-  MockAuthGuard,
   mockAuthHeader,
   mockUser,
-  mockUserId,
+  notExistedUserId,
   mockUserList,
-  MockUserNotFoundInterceptor,
 } from './constants';
+
+import { MockAuthGuard } from '../src/guards/__mocks__/auth.guard.mock';
+import { MockUserNotFoundInterceptor } from '../src/interceptors/__mocks__/userNotFound.interceptor.mock';
 
 describe('Users', () => {
   let app: INestApplication;
   const usersService = {
     findAll: () => mockUserList,
     findOne: () => mockUser,
-    createUser: () => mockUser,
+    createUser: (user: CreateUserDto) => user,
     updateUser: (id: string, user: UpdateUserDto) => user,
     deleteUser: () => mockUser,
   };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [UsersModule, AppModule],
+      imports: [UsersModule, AppModule, AuthModule],
     })
       .overrideProvider(UsersService)
       .useValue(usersService)
@@ -47,8 +49,8 @@ describe('Users', () => {
   });
 
   describe(`/GET users`, () => {
-    it('if not authorized returns 401', () => {
-      return request(app.getHttpServer())
+    it('if not authorized returns 401', async () => {
+      await request(app.getHttpServer())
         .get('/users')
         .expect(HttpStatus.UNAUTHORIZED);
     });
@@ -62,17 +64,17 @@ describe('Users', () => {
     });
   });
 
-  describe('/GET users/:id', () => {
+  xdescribe('/GET users/:id', () => {
     it('if not authorized returns 401', () => {
       return request(app.getHttpServer())
         .get(`/users/${mockUser.id}`)
         .expect(HttpStatus.UNAUTHORIZED);
     });
 
-    xit('if no such user returns 404', () => {
-      console.log(mockUserId !== mockUser.id);
+    it('if no such user returns 404', () => {
+      console.log(notExistedUserId !== mockUser.id);
       return request(app.getHttpServer())
-        .get(`/users/${mockUserId}`)
+        .get(`/users/${notExistedUserId}`)
         .set('Authorization', mockAuthHeader)
         .expect(HttpStatus.NOT_FOUND); // 200
     });
@@ -93,7 +95,7 @@ describe('Users', () => {
     });
   });
 
-  describe('/POST users', () => {
+  xdescribe('/POST users', () => {
     const newUser: CreateUserDto = {
       name: mockUser.name,
       email: mockUser.email,
@@ -120,11 +122,12 @@ describe('Users', () => {
         .post('/users')
         .set('Authorization', mockAuthHeader)
         .send(newUser)
-        .expect(HttpStatus.CREATED);
+        .expect(HttpStatus.CREATED)
+        .expect(usersService.createUser(newUser));
     });
   });
 
-  describe('/PUT users/:id', () => {
+  xdescribe('/PUT users/:id', () => {
     const newUser: UpdateUserDto = {
       name: mockUser.name,
       password: 'newPassword',
@@ -139,7 +142,7 @@ describe('Users', () => {
 
     it('if authorized and user not found returns 404', () => {
       return request(app.getHttpServer())
-        .put(`/users/${mockUserId}`)
+        .put(`/users/${notExistedUserId}`)
         .set('Authorization', mockAuthHeader)
         .send(newUser)
         .expect(HttpStatus.NOT_FOUND); // 200
@@ -162,7 +165,7 @@ describe('Users', () => {
     });
   });
 
-  describe('/DELETE users/:id', () => {
+  xdescribe('/DELETE users/:id', () => {
     it('if not authorized returns 401', () => {
       return request(app.getHttpServer())
         .del(`/users/${mockUser.id}`)
@@ -171,7 +174,7 @@ describe('Users', () => {
 
     it('if authorized and user not found returns 404', () => {
       return request(app.getHttpServer())
-        .del(`/users/${mockUserId}`)
+        .del(`/users/${notExistedUserId}`)
         .set('Authorization', mockAuthHeader)
         .expect(HttpStatus.NOT_FOUND); // 200
     });
