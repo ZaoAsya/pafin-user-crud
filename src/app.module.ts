@@ -5,6 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './routes/users/users.module';
 import { AuthModule } from './routes/auth/auth.module';
 
+import { User } from './routes/users/entities/user.entity';
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -19,7 +21,7 @@ import { AuthModule } from './routes/auth/auth.module';
         username: configService.get<string>('PG_USERNAME'),
         password: configService.get<string>('PG_PASSWORD'),
         database: configService.get<string>('PG_DB'),
-        entities: [__dirname + '/**/*.entity.{ts,js}'],
+        entities: [User],
         synchronize: true,
       }),
       inject: [ConfigService],
