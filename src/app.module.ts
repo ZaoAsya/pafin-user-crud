@@ -22,7 +22,7 @@ import { User } from './routes/users/entities/user.entity';
         password: configService.get<string>('PG_PASSWORD'),
         database: configService.get<string>('PG_DB'),
         entities: [User],
-        synchronize: true,
+        synchronize: true, // only for mvp
       }),
       inject: [ConfigService],
     }),
